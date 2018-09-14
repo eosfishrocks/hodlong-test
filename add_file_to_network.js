@@ -31,7 +31,7 @@ async function runTest(){
             var client = new WebTorrent()
             // Seed upload
             client.seed(torrent, function (torrent) {
-                console.log('Client is seeding:', torrent.infoHash)
+                console.log('Client is seeding:', torrent)
                 api.createStore(torrent.infoHash)
             })
 
