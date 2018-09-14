@@ -1,0 +1,18 @@
+{
+  "name": "hodlong-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "clienttest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bittorrent-protocol": "^3.0.1",
+    "create-torrent": "^3.33.0",
+    "eosjs": "^16.0.7",
+    "fs": "0.0.1-security",
+    "webtorrent": "^0.102.4"
+  }
+}

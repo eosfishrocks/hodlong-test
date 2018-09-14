@@ -1,0 +1,3 @@
+[submodule "__assets__"]
+	path = __assets__
+	url = https://github.com/eosfishrocks/__assets__
