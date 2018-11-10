@@ -46,6 +46,11 @@ module.exports = () => {
                 this.setStats(stats)
             }
             this.peerId = null
+            this.eos = EOS({
+                keyProvider: this._privateKey,
+                httpEndpoint: this._eosEndpoint,
+                chain: this._chain.sys
+            })
         }
 
         onHandshake (infoHash, peerId, extensions) {
@@ -122,8 +127,6 @@ module.exports = () => {
 
         setStats (stats) {
             if (this._statsComplete) return true
-            debug('set stats')
-
             // if full torrent dictionary was passed in, pull out just `info` key
             try {
                 const info = bencode.decode(stats).info
@@ -236,13 +239,8 @@ module.exports = () => {
         _eosPush () {
             if (new Date() - this.last_eos_push < 3000) { return }
             else {
-                let eos = EOS({
-                    keyProvider: this._privateKey,
-                    httpEndpoint: this._eosEndpoint,
-                    chain: this._chain.sys
-                })
                 let amount = this._pendingStats[this._remotePeer]
-                eos.transaction(this._contractAccount, stats => {
+                this.eos.transaction(this._contractAccount, stats => {
                     stats.addstats(this._eosAccount, this._infoId, this._peerId, this._remotePeerId, amount)
                 })
             }
