@@ -1,22 +1,26 @@
-let EOS = require('eosjs')
+let { Api, JsonRpc, RpcError, JsSignatureProvider } = require('eosjs');
+let fetch = require('node-fetch');
+let { TextDecoder, TextEncoder } = require('text-encoding');
+let createTorrent = require('create-torrent')
+let WebTorrent = require('webtorrent')
 
 
-class hapi {
-    constructor(endpoint, chain, accountName, eosPrivateKey, rsaPubKey){
+class HAPI {
+    constructor(endpoint, chain, accountName, eosPrivateKey, rsaPrivKey, rsaPubKey){
         this._endpoint = endpoint;
         this._chain = chain;
         this._accountName = accountName;
         this._privateKey = eosPrivateKey;
         this._rsaPubKey = rsaPubKey;
+        this._rsaPrivKey = rsaPrivKey;
         this._contractInfo = {
-            'marketplace': 'marketplace',
+            'hodlong': 'hodlong',
             'trackers': 'trackers'
         };
         this._trackers = [];
-        this._eos = EOS({
-            httpEndpoint: this._endpoint,
-            chain: this._chain
-        });
+        this.signatureProvider = new JsSignatureProvider([this._privateKey]);
+        this.rpc = new JsonRpc('http://127.0.0.1:8888', { fetch });
+        this.api = new Api({ rpc: this.rpc, signatureProvider: this.signatureProvider});
     }
 
     async getTrackers() {
@@ -131,27 +135,52 @@ class hapi {
         }
     }
 
-    async createUser(pubKey){
-        await this._eos.transaction({
-            actions: [
-                {
-                    account: this._contractInfo['marketplace'],
-                    name: 'users',
+    async createUser(account_name, pubKey){
+        (async () => {
+            const result = await this.api.transact({
+                actions: [{
+                    account: this._contractInfo['hodlong'],
+                    name: 'adduser',
                     authorization: [{
-                        actor: this._account_name,
-                        permission: 'active'
+                        actor: account_name,
+                        permission: 'active',
                     }],
                     data: {
-                        user: {
-                            account: this._account_name,
-                            pub_key: pubKey
-                        }
-                    }
-                }
-            ]
+                        account: account_name,
+                        pub_key: pubKey
+                    },
+                }]
+            }, {
+                blocksBehind: 3,
+                expireSeconds: 30,
+            });
+            console.dir(result);
+        })();
+    }
+
+    async createObject(path, name, comment){
+        let trackers = await this.getTrackers();
+        let opts = {
+            name: name,
+            comment: comment,
+            createdBy: this._eos.getAccount('_self'),
+            private: true,
+            rsaPubKey: pubkey,
+            announceList: trackers,
+            urlList: trackers
+        }
+        await createTorrent(path, opts, function (err, torrent) {
+            if (!err) {
+                // Start client for the upload seed
+                var client = new WebTorrent()
+                // Seed upload
+                client.seed(torrent, function (torrent) {
+                    this.createStore(torrent.infoHash)
+                })
+            }
         })
     }
 
 }
 
-module.exports = hapi
+module.exports = HAPI;
