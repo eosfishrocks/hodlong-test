@@ -24,12 +24,12 @@ class HAPI {
     }
 
     async getTrackers() {
-
-        await this._eos.getTableRows({
+        await this.rpc.get_table_rows({
             code: this._contractInfo['trackers'],
             scope: this._contractInfo['trackers'],
             table: 'wtrackers',
             json: true
+
         }).then(data => {
             if (data) {
                 data.rows.forEach((tracker) => {
@@ -39,6 +39,7 @@ class HAPI {
         }).catch(e => {
             console.error(e);
         });
+
         return this._trackers
     }
 

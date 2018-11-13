@@ -23,7 +23,9 @@ let api = new HAPI(url, chain.sys, account_name, eosPrivateKey, privateKey, publ
 
 
 async function runTest(){
-    api.createUser('user', publicKey);
+    console.log(await api.getTrackers());
+
+    //api.createUser('user', publicKey);
 }
 
 
