@@ -15,7 +15,7 @@ let eosPrivateKey = '5JwEKmsSqRBX2rSHWvP3aavcxWPwTjQtNgfx3BbHTSRJDtnfSjS';
 let url = 'http://127.0.0.1:8888';
 let privatePassphrase = 'This is a test phrase';
 let RSABits = 1024;
-let account_name='user';
+let account_name='usera';
 let privateKey = cryptotic.generateRSAKey(privatePassphrase, RSABits);
 let publicKey = cryptotic.publicKeyString(privateKey);
 let api = new HAPI(url, chain.sys, account_name, eosPrivateKey, privateKey, publicKey);
@@ -24,8 +24,8 @@ let api = new HAPI(url, chain.sys, account_name, eosPrivateKey, privateKey, publ
 
 async function runTest(){
     console.log(await api.getTrackers());
-
     //api.createUser('user', publicKey);
+    console.log()
 }
 
 

@@ -19,7 +19,7 @@ class HAPI {
         };
         this._trackers = [];
         this.signatureProvider = new JsSignatureProvider([this._privateKey]);
-        this.rpc = new JsonRpc('http://127.0.0.1:8888', { fetch });
+        this.rpc = new JsonRpc(endpoint, { fetch });
         this.api = new Api({ rpc: this.rpc, signatureProvider: this.signatureProvider});
     }
 
@@ -44,7 +44,7 @@ class HAPI {
     }
 
     async createStore(torrent) {
-        await this._eos.transaction({
+        await this.api.transact({
             actions: [
                 {
                     account: this._contractInfo['marketplace'],
@@ -164,9 +164,9 @@ class HAPI {
         let opts = {
             name: name,
             comment: comment,
-            createdBy: this._eos.getAccount('_self'),
+            createdBy: this._accountName,
             private: true,
-            rsaPubKey: pubkey,
+            rsaPubKey: this._rsaPubKey,
             announceList: trackers,
             urlList: trackers
         }

@@ -139,7 +139,7 @@ module.exports = () => {
 
             this._pendingStats = stats
             this._statsComplete = true
-            this._statSize = Object.keys(this.stats).length
+            this._statSimaze = Object.keys(this.stats).length
             this.extendedHandshake.stats_size = this._statsSize
 
             this.emit('stats', bencode.encode({
