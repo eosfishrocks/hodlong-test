@@ -3,20 +3,19 @@ let fetch = require('node-fetch');
 let { TextDecoder, TextEncoder } = require('text-encoding');
 let createTorrent = require('create-torrent')
 let WebTorrent = require('webtorrent')
+let Protocol = require('bittorrent-protocol')
+let net = require('net')
+let ut_pex = require('ut_pex')
+let utHodlong = require('./ut_hodlong')
 
 
 class HAPI {
-    constructor(endpoint, chain, accountName, eosPrivateKey, rsaPrivKey, rsaPubKey){
-        this._endpoint = endpoint;
-        this._chain = chain;
-        this._accountName = accountName;
-        this._privateKey = eosPrivateKey;
-        this._rsaPubKey = rsaPubKey;
-        this._rsaPrivKey = rsaPrivKey;
-        this._contractInfo = {
-            'hodlong': 'hodlong',
-            'trackers': 'trackers'
-        };
+    constructor(opts){
+        this._accountName = opts.accountName;
+        this._privateKey = opts.eosPrivateKey;
+        this._rsaPubKey = opts.rsaPubKey;
+        this._rsaPrivKey = opts.rsaPrivKey;
+        this._contractInfo = opt.contractInfo
         this._trackers = [];
         this.signatureProvider = new JsSignatureProvider([this._privateKey]);
         this.rpc = new JsonRpc(endpoint, { fetch });
@@ -173,13 +172,38 @@ class HAPI {
         await createTorrent(path, opts, function (err, torrent) {
             if (!err) {
                 // Start client for the upload seed
+                console.log(torrent.infoHash);
                 var client = new WebTorrent()
                 // Seed upload
-                client.seed(torrent, function (torrent) {
-                    this.createStore(torrent.infoHash)
-                })
+                //client.seed(torrent, function (torrent) {
+                    //this.createStore(torrent.infoHash)
+                //})
             }
         })
+    }
+    async addStats(to, from, storageId, amount){
+        (async () => {
+            const result = this.api.transact({
+                actions: [{
+                    account: this._contractInfo['hodlong'],
+                    name: 'addstats',
+                    authorization: [{
+                        actor: account_name,
+                        permission: 'active',
+                    }],
+                    data: {
+                        authority: account_name,
+                        to: to,
+                        from: from,
+                        storage_id: storageId,
+                        amount: amount
+                    },
+                }]
+            }, {
+                blocksBehind: 3,
+                expireSeconds: 30,
+            });
+        })();
     }
 
 }
