@@ -1,14 +1,15 @@
 let debug = true
-
+let DHT = require('bittorrent-dht')
 let port = '8080'
-var Server = require('bittorrent-tracker').Server
+let Server = require('bittorrent-tracker').Server
 
-var server = new Server({
+let server = new Server({
     udp: true, // enable udp server? [default=true]
     http: true, // enable http server? [default=true]
     ws: true, // enable websocket server? [default=true]
     stats: true, // enable web-based statistics? [default=true]
 })
+
 
 server.on('error', function (err) {
     console.error('ERROR: ' + err.message)
@@ -29,39 +30,48 @@ server.on('stop', function (addr) {
     if (debug) console.log('stop: ' + addr)
 })
 
-var hostname = {
-    http: '127.0.0.1',
+let hostname = {
+    http: 'dev.hodlong.com',
 }
 
 server.listen(port, hostname, function () {
 
-        var httpAddr = server.http.address()
-        var httpHost = httpAddr.address !== '::' ? httpAddr.address : 'localhost'
-        var httpPort = httpAddr.port
+        let httpAddr = server.http.address()
+        let httpHost = httpAddr.address !== '::' ? httpAddr.address : 'localhost'
+        httphost = hostname
+        let httpPort = httpAddr.port
         console.log('HTTP tracker: http://' + httpHost + ':' + httpPort + '/announce')
 
 
-        var udpAddr = server.udp.address()
-        var udpHost = udpAddr.address
-        var udpPort = udpAddr.port
+        let udpAddr = server.udp.address()
+        let udpHost = udpAddr.address
+        let udpPort = udpAddr.port
+        udphost = hostname
         console.log('UDP tracker: udp://' + udpHost + ':' + udpPort)
 
 
-        var udp6Addr = server.udp6.address()
-        var udp6Host = udp6Addr.address !== '::' ? udp6Addr.address : 'localhost'
-        var udp6Port = udp6Addr.port
+        let udp6Addr = server.udp6.address()
+        let udp6Host = udp6Addr.address !== '::' ? udp6Addr.address : 'localhost'
+        let udp6Port = udp6Addr.port
         console.log('UDP6 tracker: udp://' + udp6Host + ':' + udp6Port)
 
 
-        var wsAddr = server.http.address()
-        var wsHost = wsAddr.address !== '::' ? wsAddr.address : 'localhost'
-        var wsPort = wsAddr.port
+        let wsAddr = server.http.address()
+        let wsHost = wsAddr.address !== '::' ? wsAddr.address : 'localhost'
+        let wsPort = wsAddr.port
+
         console.log('WebSocket tracker: ws://' + wsHost + ':' + wsPort)
 
 
-        var statsAddr = server.http.address()
-        var statsHost = statsAddr.address !== '::' ? statsAddr.address : 'localhost'
-        var statsPort = statsAddr.port
+        let statsAddr = server.http.address()
+        let statsHost = statsAddr.address !== '::' ? statsAddr.address : 'localhost'
+        let statsPort = statsAddr.port
         console.log('Tracker stats: http://' + statsHost + ':' + statsPort + '/stats')
 
+        let dhtServer = new DHT({ bootstrap: false, debug: true })
+        dhtServer.on('error', function (err) { t.fail(err) })
+        dhtServer.on('warning', function (err) { t.fail(err) })
+        dhtServer.listen()
+
 })
+
